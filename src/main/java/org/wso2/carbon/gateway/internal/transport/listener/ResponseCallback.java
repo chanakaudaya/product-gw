@@ -37,6 +37,9 @@ public class ResponseCallback implements CarbonCallback {
     }
 
     public void done(CarbonMessage cMsg) {
+        if(cMsg == null) {
+            return;
+        }
         final Pipe pipe = cMsg.getPipe();
         final HttpResponse response = Util.createHttpResponse(cMsg);
         ctx.write(response);

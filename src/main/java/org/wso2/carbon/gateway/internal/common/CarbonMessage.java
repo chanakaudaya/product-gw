@@ -15,6 +15,8 @@
 
 package org.wso2.carbon.gateway.internal.common;
 
+import io.netty.buffer.ByteBufInputStream;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -33,6 +35,8 @@ public class CarbonMessage {
     private String host;
     private String to;
     private Pipe pipe;
+
+    private ByteBufInputStream contentStream;
 
     private CarbonCallback carbonCallback;
 
@@ -117,6 +121,15 @@ public class CarbonMessage {
 
     public Lock getLock() {
         return lock;
+    }
+
+
+    public ByteBufInputStream getContentStream() {
+        return contentStream;
+    }
+
+    public void setContentStream(ByteBufInputStream contentStream) {
+        this.contentStream = contentStream;
     }
 
 }

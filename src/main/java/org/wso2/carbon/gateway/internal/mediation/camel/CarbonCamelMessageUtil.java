@@ -18,12 +18,16 @@
 
 package org.wso2.carbon.gateway.internal.mediation.camel;
 
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import org.apache.camel.Exchange;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.gateway.internal.common.CarbonGatewayConstants;
 import org.wso2.carbon.gateway.internal.common.CarbonMessage;
 import org.wso2.carbon.gateway.internal.transport.common.Constants;
+import org.wso2.carbon.gateway.internal.transport.common.PipeImpl;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -111,8 +115,13 @@ public class CarbonCamelMessageUtil {
 
     //get camel headers from mediated request and set in carbon message
     public void setCarbonHeadersToBackendRequest(Exchange exchange, String host, int port, String uri) {
-
-        CarbonMessage request = (CarbonMessage) exchange.getIn().getBody();
+        CarbonMessage request;
+        //Check the original CMsg in the exchange
+        if(exchange.getProperty(CarbonGatewayConstants.ORIGINAL_MESSAGE) != null) {
+            request = (CarbonMessage) exchange.getProperty(CarbonGatewayConstants.ORIGINAL_MESSAGE);
+        } else {
+            request = (CarbonMessage) exchange.getIn().getBody();
+        }
         Map<String, Object> headers = exchange.getIn().getHeaders();
 
         if (request != null) {

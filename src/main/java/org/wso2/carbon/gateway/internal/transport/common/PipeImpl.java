@@ -48,8 +48,27 @@ public class PipeImpl implements Pipe {
         }
     }
 
+    @Override
+    public ContentChunk getClonedContent() {
+        try {
+            ContentChunk clonedContent = null;
+            if(!contentQueue.isEmpty()) {
+                clonedContent = contentQueue.take();
+                contentQueue.add(clonedContent);
+            }
+            return clonedContent;
+        } catch (InterruptedException e) {
+            LOG.error("Error while retrieving chunk from queue.", e);
+            return null;
+        }
+    }
+
     public void addContentChunk(ContentChunk contentChunk) {
         contentQueue.add(contentChunk);
+    }
+
+    public void clearContent() {
+        this.contentQueue.clear();
     }
 
 

@@ -80,7 +80,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
             CarbonMessage mediatedResponse = exchange.getOut().getBody(CarbonMessage.class);
             Map<String, Object> mediatedHeaders = exchange.getOut().getHeaders();
-            mediatedResponse.setProperty(Constants.TRANSPORT_HEADERS, mediatedHeaders);
+            //check whether response is null
+            if(mediatedResponse != null) {
+                mediatedResponse.setProperty(Constants.TRANSPORT_HEADERS, mediatedHeaders);
+            }
 
             try {
                 requestCallback.done(mediatedResponse);

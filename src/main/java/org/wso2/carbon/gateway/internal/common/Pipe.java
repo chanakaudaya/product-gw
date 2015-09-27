@@ -22,6 +22,8 @@ public interface Pipe {
 
     ContentChunk getContent();
 
+    ContentChunk getClonedContent();
+
     void addContentChunk(ContentChunk chunk);
 
 }

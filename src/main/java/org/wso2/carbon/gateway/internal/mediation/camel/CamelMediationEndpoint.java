@@ -18,12 +18,16 @@
 
 package org.wso2.carbon.gateway.internal.mediation.camel;
 
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import org.apache.camel.Consumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.wso2.carbon.gateway.internal.common.CarbonGatewayConstants;
 import org.wso2.carbon.gateway.internal.common.CarbonMessage;
+import org.wso2.carbon.gateway.internal.transport.common.HTTPContentChunk;
 
 import java.util.Map;
 
@@ -62,7 +66,14 @@ public class CamelMediationEndpoint extends DefaultEndpoint {
         carbonCamelMessageUtil.setCamelHeadersToClientRequest(exchange, headers, cmsg);
         //carbonCamelMessageUtil.setCamelRequestBody(exchange, cmsg);
         //addHeadersToExchange(exchange.getIn(), headers);
-        exchange.getIn().setBody(cmsg);
+
+        //Save the content to a temporary buffer
+        //HTTPContentChunk tempHttpContent =  ((HTTPContentChunk)cmsg.getPipe().getContent());
+        //Convert HTTP Message to Input stream
+        ByteBufInputStream byteBufInputStream = new ByteBufInputStream(((HTTPContentChunk)cmsg.getPipe().getClonedContent()).getHttpContent().duplicate().content());
+        exchange.setProperty(CarbonGatewayConstants.ORIGINAL_MESSAGE, cmsg);
+        exchange.getIn().setBody(byteBufInputStream);
+        //exchange.getIn().setBody(cmsg);
         return exchange;
     }
 

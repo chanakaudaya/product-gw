@@ -26,6 +26,7 @@ import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.internal.common.CarbonCallback;
+import org.wso2.carbon.gateway.internal.common.CarbonGatewayConstants;
 import org.wso2.carbon.gateway.internal.common.CarbonMessage;
 import org.wso2.carbon.gateway.internal.transport.common.Constants;
 
@@ -65,7 +66,14 @@ public class CamelMediationProducer extends DefaultAsyncProducer {
         //change the header parameters according to the routed endpoint url
         carbonCamelMessageUtil.setCarbonHeadersToBackendRequest(exchange, host, port, uri);
         //setCarbonHeaders(exchange);
-        engine.getSender().send(exchange.getIn().getBody(CarbonMessage.class),
+        //Check the original CMsg in the exchange
+        CarbonMessage request;
+        if(exchange.getProperty(CarbonGatewayConstants.ORIGINAL_MESSAGE) != null) {
+            request = (CarbonMessage) exchange.getProperty(CarbonGatewayConstants.ORIGINAL_MESSAGE);
+        } else {
+            request = (CarbonMessage) exchange.getIn().getBody(CarbonMessage.class);
+        }
+        engine.getSender().send(request,
                 new NettyHttpBackEndCallback(exchange, callback));
         return false;
     }

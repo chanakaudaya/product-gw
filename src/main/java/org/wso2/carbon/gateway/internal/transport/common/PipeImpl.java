@@ -16,13 +16,19 @@
 package org.wso2.carbon.gateway.internal.transport.common;
 
 
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.FullHttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.gateway.internal.common.ContentChunk;
 import org.wso2.carbon.gateway.internal.common.Pipe;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A class that contains the content of request.
@@ -33,9 +39,17 @@ public class PipeImpl implements Pipe {
 
     private BlockingQueue<ContentChunk> contentQueue;
 
+    private BlockingQueue<ContentChunk> clonedContentQueue;
+
+    //private ByteBuf messageBuffer;
+
+    //private BlockingQueue<FullHttpRequest> fullHttpRequestQueue;
+
 
     public PipeImpl(int blockingQueueSize) {
         this.contentQueue = new LinkedBlockingQueue<>(blockingQueueSize);
+        //this.fullHttpRequestQueue = new LinkedBlockingQueue<>(blockingQueueSize);
+        this.clonedContentQueue = new LinkedBlockingQueue<>(blockingQueueSize);
     }
 
 
@@ -51,25 +65,70 @@ public class PipeImpl implements Pipe {
     @Override
     public ContentChunk getClonedContent() {
         try {
-            ContentChunk clonedContent = null;
-            if(!contentQueue.isEmpty()) {
-                clonedContent = contentQueue.take();
-                contentQueue.add(clonedContent);
-            }
-            return clonedContent;
+            return this.clonedContentQueue.take();
         } catch (InterruptedException e) {
             LOG.error("Error while retrieving chunk from queue.", e);
             return null;
         }
     }
 
+    @Override
+    public BlockingQueue<ContentChunk> getClonedContentQueue() {
+        if(!this.contentQueue.isEmpty()) {
+            if(!clonedContentQueue.isEmpty()) {
+                clonedContentQueue.clear();
+            }
+            this.clonedContentQueue.addAll(this.contentQueue);
+        }
+        return this.clonedContentQueue;
+    }
+
+
     public void addContentChunk(ContentChunk contentChunk) {
         contentQueue.add(contentChunk);
     }
 
+//    @Override
+//    public void addFullHttpRequest(FullHttpRequest content) {
+//         fullHttpRequestQueue.add(content);
+//    }
+//
+//    @Override
+//    public FullHttpRequest getFullHttpRequest() {
+//        try {
+//            return fullHttpRequestQueue.take();
+//        } catch (InterruptedException e) {
+//            LOG.error("Error while retrieving chunk from queue.", e);
+//            return null;
+//        }
+//    }
+
+//    @Override
+//    public FullHttpRequest getClonedFullHttpRequest() {
+//        try {
+//            FullHttpRequest clonedContent = null;
+//            if(!fullHttpRequestQueue.isEmpty()) {
+//                clonedContent = fullHttpRequestQueue.take();
+//                fullHttpRequestQueue.add(clonedContent);
+//            }
+//            return clonedContent;
+//        } catch (InterruptedException e) {
+//            LOG.error("Error while retrieving chunk from queue.", e);
+//            return null;
+//        }
+//    }
+
     public void clearContent() {
         this.contentQueue.clear();
+        this.clonedContentQueue.clear();
     }
 
-
+//
+//    public ByteBuf getMessageBuffer() {
+//        return messageBuffer;
+//    }
+//
+//    public void setMessageBuffer(ByteBuf messageBuffer) {
+//        this.messageBuffer = messageBuffer;
+//    }
 }

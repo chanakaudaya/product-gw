@@ -71,7 +71,7 @@ public class CamelMediationProducer extends DefaultAsyncProducer {
         if(exchange.getProperty(CarbonGatewayConstants.ORIGINAL_MESSAGE) != null) {
             request = (CarbonMessage) exchange.getProperty(CarbonGatewayConstants.ORIGINAL_MESSAGE);
         } else {
-            request = (CarbonMessage) exchange.getIn().getBody(CarbonMessage.class);
+            request = ((CamelHttp4Message) exchange.getIn()).getCarbonMessage();
         }
         engine.getSender().send(request,
                 new NettyHttpBackEndCallback(exchange, callback));

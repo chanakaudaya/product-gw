@@ -19,7 +19,9 @@ package org.wso2.carbon.gateway.internal.transport.listener;
 import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.log4j.Logger;
@@ -82,6 +84,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HttpRequest httpRequest = (HttpRequest) msg;
             cMsg.setURI(httpRequest.getUri());
             Pipe pipe = new PipeImpl(queueSize);
+            //pipe.addContent();
             cMsg.setPipe(pipe);
 
             cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);

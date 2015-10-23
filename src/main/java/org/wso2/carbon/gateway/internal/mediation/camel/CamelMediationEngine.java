@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.gateway.internal.mediation.camel;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.Unpooled;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.slf4j.Logger;
@@ -28,6 +31,8 @@ import org.wso2.carbon.gateway.internal.common.CarbonMessageProcessor;
 import org.wso2.carbon.gateway.internal.common.TransportSender;
 import org.wso2.carbon.gateway.internal.transport.common.Constants;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -78,12 +83,26 @@ import java.util.concurrent.ConcurrentHashMap;
                                        final CarbonCallback requestCallback) {
         consumer.getAsyncProcessor().process(exchange, done -> {
 
-            CarbonMessage mediatedResponse = exchange.getOut().getBody(CarbonMessage.class);
-            Map<String, Object> mediatedHeaders = exchange.getOut().getHeaders();
-            //check whether response is null
-            if(mediatedResponse != null) {
-                mediatedResponse.setProperty(Constants.TRANSPORT_HEADERS, mediatedHeaders);
+            //CarbonMessage mediatedResponse = ((CamelHttpMessage)exchange.getOut()).getCarbonMessage();
+            CarbonMessage mediatedResponse = null;
+            Object outMesgBody = exchange.getOut().getBody();
+            if(outMesgBody instanceof CarbonMessage) {
+                mediatedResponse = (CarbonMessage) exchange.getOut().getBody();
+            } else if(outMesgBody instanceof String) {
+                //ByteBufInputStream outMessage = new ByteBufInputStream(Unpooled.wrappedBuffer(ByteBuffer.wrap(((String)outMesgBody).getBytes(StandardCharsets.UTF_8))));
+                mediatedResponse = new CarbonMessage(Constants.PROTOCOL_NAME);
+                mediatedResponse.setSimplePayload((String)outMesgBody);
+                //mediatedResponse.setContentStream(outMessage);
             }
+            Map<String, Object> mediatedHeaders = exchange.getOut().getHeaders();
+            mediatedResponse.setProperty(Constants.TRANSPORT_HEADERS, mediatedHeaders);
+            //check whether response is null
+//            if(mediatedResponse != null) {
+//                mediatedResponse.setProperty(Constants.TRANSPORT_HEADERS, mediatedHeaders);
+//            } else {
+//                mediatedResponse = new CarbonMessage(Constants.PROTOCOL_NAME);
+//                mediatedResponse.setProperty(Constants.TRANSPORT_HEADERS, mediatedHeaders);
+//            }
 
             try {
                 requestCallback.done(mediatedResponse);

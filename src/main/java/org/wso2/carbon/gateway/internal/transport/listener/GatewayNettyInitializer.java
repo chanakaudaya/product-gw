@@ -15,17 +15,20 @@
 
 package org.wso2.carbon.gateway.internal.transport.listener;
 
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpRequestDecoder;
-import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.*;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.model.RoutesDefinition;
 import org.apache.log4j.Logger;
+import org.wso2.carbon.gateway.internal.common.CarbonGatewayConstants;
+import org.wso2.carbon.gateway.internal.common.CarbonMessage;
 import org.wso2.carbon.gateway.internal.common.TransportSender;
 import org.wso2.carbon.gateway.internal.mediation.camel.CamelMediationComponent;
 import org.wso2.carbon.gateway.internal.mediation.camel.CamelMediationEngine;
+import org.wso2.carbon.gateway.internal.mediation.camel.CarbonMessageTypeConverter;
 import org.wso2.carbon.gateway.internal.transport.common.Constants;
 import org.wso2.carbon.gateway.internal.transport.common.disruptor.config.DisruptorConfig;
 import org.wso2.carbon.gateway.internal.transport.common.disruptor.config.DisruptorFactory;
@@ -39,6 +42,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
+
 
 /**
  * A class that responsible for create server side channels.
@@ -70,6 +74,8 @@ public class GatewayNettyInitializer implements CarbonNettyServerInitializer {
         context.disableJMX();
         CamelMediationEngine engine = new CamelMediationEngine(sender);
         context.addComponent("wso2-gw", new CamelMediationComponent(engine));
+        context.getTypeConverterRegistry().addTypeConverter(org.w3c.dom.Document.class, CarbonMessage.class, new CarbonMessageTypeConverter());
+        //context.getTypeConverterRegistry().addTypeConverter(CarbonMessage.class, ByteBufInputStream.class, new CarbonMessageTypeConverter());
 
         FileInputStream fis = null;
         try {
@@ -118,6 +124,7 @@ public class GatewayNettyInitializer implements CarbonNettyServerInitializer {
         }
         ChannelPipeline p = ch.pipeline();
         p.addLast("decoder", new HttpRequestDecoder());
+        //p.addLast("object-aggregater",new HttpObjectAggregator(CarbonGatewayConstants.AGGREGATED_HTTP_MESSAGE_MAX_SIZE));
         p.addLast("encoder", new HttpResponseEncoder());
         try {
             p.addLast("handler", new SourceHandler(queueSize, connectionManager));

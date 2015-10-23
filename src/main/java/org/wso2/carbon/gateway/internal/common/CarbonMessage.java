@@ -36,6 +36,8 @@ public class CarbonMessage {
     private String to;
     private Pipe pipe;
 
+    private String simplePayload;
+
     private ByteBufInputStream contentStream;
 
     private CarbonCallback carbonCallback;
@@ -130,6 +132,15 @@ public class CarbonMessage {
 
     public void setContentStream(ByteBufInputStream contentStream) {
         this.contentStream = contentStream;
+    }
+
+
+    public String getSimplePayload() {
+        return simplePayload;
+    }
+
+    public void setSimplePayload(String simplePayload) {
+        this.simplePayload = simplePayload;
     }
 
 }

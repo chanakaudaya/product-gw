@@ -15,6 +15,12 @@
 
 package org.wso2.carbon.gateway.internal.common;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.FullHttpRequest;
+
+import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+
 /**
  * Interface for create Content Holders.
  */
@@ -24,6 +30,16 @@ public interface Pipe {
 
     ContentChunk getClonedContent();
 
+    BlockingQueue<ContentChunk> getClonedContentQueue();
+
     void addContentChunk(ContentChunk chunk);
+
+    //ByteBuf getBuffer();
+
+    //void addFullHttpRequest(FullHttpRequest content);
+
+    //FullHttpRequest getFullHttpRequest();
+
+    //FullHttpRequest getClonedFullHttpRequest();
 
 }

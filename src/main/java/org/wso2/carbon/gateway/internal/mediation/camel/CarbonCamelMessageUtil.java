@@ -120,7 +120,7 @@ public class CarbonCamelMessageUtil {
         if(exchange.getProperty(CarbonGatewayConstants.ORIGINAL_MESSAGE) != null) {
             request = (CarbonMessage) exchange.getProperty(CarbonGatewayConstants.ORIGINAL_MESSAGE);
         } else {
-            request = (CarbonMessage) exchange.getIn().getBody();
+            request = ((CamelHttp4Message)exchange.getIn()).getCarbonMessage();
         }
         Map<String, Object> headers = exchange.getIn().getHeaders();
 

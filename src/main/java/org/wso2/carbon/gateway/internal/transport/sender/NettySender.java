@@ -17,6 +17,7 @@ package org.wso2.carbon.gateway.internal.transport.sender;
 
 import com.lmax.disruptor.RingBuffer;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -95,6 +96,8 @@ public class NettySender implements TransportSender {
 
     private boolean writeContent(Channel channel, HttpRequest httpRequest, CarbonMessage carbonMessage) {
         channel.write(httpRequest);
+        //FullHttpRequest fullHttpRequest = (FullHttpRequest) carbonMessage.getPipe().getFullHttpRequest();
+        //channel.writeAndFlush(fullHttpRequest);
         while (true) {
             HTTPContentChunk chunk = (HTTPContentChunk) carbonMessage.getPipe().getContent();
             HttpContent httpContent = chunk.getHttpContent();

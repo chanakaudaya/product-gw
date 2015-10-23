@@ -121,6 +121,9 @@
                             org.apache.camel.*,
                             org.apache.commons.pool.*,
                             com.lmax.disruptor.*,
+                            org.w3c.dom.*,
+                            org.xml.sax.*,
+                            javax.xml.*,
                             org.slf4j.*
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
@@ -206,6 +209,11 @@
             <artifactId>commons-pool</artifactId>
             <version>${commons.pool.version}</version>
         </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>${xml-apis-version}</version>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -226,5 +234,6 @@
         <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
         <osgi.service.tracker.import.version.range>[1.5.1, 1.6.0)</osgi.service.tracker.import.version.range>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
+        <xml-apis-version>1.4.01</xml-apis-version>
     </properties>
 </project>
